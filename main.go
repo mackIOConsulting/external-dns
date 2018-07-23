@@ -126,7 +126,7 @@ func main() {
 		p, err = provider.NewRFC2136Provider(provider.RFC2136Config{
 			DNSServerHost:   cfg.RFC2136DNSServerHost,
 			MainWorkingZone: cfg.RFC2136MainZone,
-			TSIGSecret:      cfg.RFC2136WorkingTSIGSecret,
+			TSIGSecret:      cfg.RFC2136TSIGSecret,
 			TSIGSecretAlg:   cfg.RFC2136TSIGSecretAlg,
 			TSIGSecretName:  cfg.RFC2136TSIGSecretName,
 			TSIGFurge:       cfg.RFC2136TSIGFurge,

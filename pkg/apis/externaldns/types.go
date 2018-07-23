@@ -91,7 +91,7 @@ type Config struct {
 	ExoscaleAPISecret        string
 	RFC2136DNSServerHost     string
 	RFC2136MainZone          string
-	RFC2136WorkingTSIGSecret string
+	RFC2136TSIGSecret        string
 	RFC2136TSIGSecretAlg     string
 	RFC2136TSIGSecretName    string
 	RFC2136TSIGFurge         uint16
