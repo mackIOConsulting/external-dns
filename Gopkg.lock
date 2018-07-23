@@ -625,10 +625,14 @@
   revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
 
 [[projects]]
-  digest = "1:a88ff46bdebbcd5ca51d06e958da010e54909ca6d88e7b050a078aab269e00e2"
+  digest = "1:af9bfca4298ef7502c52b1459df274eed401a4f5498b900e9a92d28d3d87ac5a"
   name = "golang.org/x/text"
   packages = [
     "cases",
+    "collate",
+    "collate/build",
+    "internal",
+    "internal/colltab",
     "internal/gen",
     "internal/tag",
     "internal/triegen",
@@ -645,7 +649,8 @@
     "width",
   ]
   pruneopts = ""
-  revision = "2910a502d2bf9e43193af9d68ca516529614eed3"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   digest = "1:ab84306e7e74b9f01b9f1480d46cca9325f8c512567a0e7b8888d04ff627a5ba"
