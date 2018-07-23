@@ -2,16 +2,52 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/kubernetes-incubator/external-dns/endpoint"
+	"github.com/kubernetes-incubator/external-dns/plan"
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	enableIntegrationTests = os.Getenv("EXTERNAL_DNS_RFC2136_INTEGRATION_TESTS")
+)
+
+func TestProviderCreateRecords(t *testing.T) {
+	if len(enableIntegrationTests) == 0 {
+		return
+	}
+	p, err := NewRFC2136Provider(RFC2136Config{
+		DNSServerHost:   "127.0.0.1:53",
+		MainWorkingZone: "localhost",
+		TSIGSecret:      "WNiF81LrIxYbbPwt/twgUA==",
+		TSIGSecretAlg:   "hmac-md5",
+		TSIGSecretName:  "rndc-key",
+		TSIGFurge:       300,
+	})
+	assert.NoError(t, err)
+
+	err = p.ApplyChanges(&plan.Changes{
+		Create: []*endpoint.Endpoint{
+			{
+				DNSName:    "boom3.localhost",
+				Targets:    []string{"VALUE"},
+				RecordType: "TXT",
+				RecordTTL:  3600,
+			},
+		}})
+	assert.NoError(t, err)
+}
+
 func TestSimpleCall(t *testing.T) {
+	if len(enableIntegrationTests) == 0 {
+		return
+	}
 	m := new(dns.Msg)
-	m.SetQuestion("*", dns.TypeANY)
+	m.SetQuestion("localhost.", dns.TypeANY)
 	m.SetTsig("rndc-key.", dns.HmacMD5, 0xFFFF, time.Now().Unix())
 
 	c := new(dns.Client)
@@ -34,10 +70,12 @@ func TestSimpleCall(t *testing.T) {
 }
 
 func TestAddNewEntryCall(t *testing.T) {
+	if len(enableIntegrationTests) == 0 {
+		return
+	}
 
 	m := new(dns.Msg)
 	m.SetUpdate("localhost.")
-	m.Id = 1234
 
 	rr, err := dns.NewRR("boom_2.localhost 3600 txt brrrrrrr")
 	assert.NoError(t, err)
