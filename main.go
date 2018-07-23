@@ -122,6 +122,8 @@ func main() {
 		p, err = provider.NewDigitalOceanProvider(domainFilter, cfg.DryRun)
 	case "dnsimple":
 		p, err = provider.NewDnsimpleProvider(domainFilter, zoneIDFilter, cfg.DryRun)
+	case "rfc2136":
+		p, err = provider.NewRFC2136Provider(domainFilter, zoneIDFilter, provider.RFC2136Config{})
 	case "infoblox":
 		p, err = provider.NewInfobloxProvider(
 			provider.InfobloxConfig{
