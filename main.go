@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -123,14 +124,17 @@ func main() {
 	case "dnsimple":
 		p, err = provider.NewDnsimpleProvider(domainFilter, zoneIDFilter, cfg.DryRun)
 	case "rfc2136":
-		p, err = provider.NewRFC2136Provider(provider.RFC2136Config{
-			DNSServerHost:   cfg.RFC2136DNSServerHost,
-			MainWorkingZone: cfg.RFC2136MainZone,
-			TSIGSecret:      cfg.RFC2136TSIGSecret,
-			TSIGSecretAlg:   cfg.RFC2136TSIGSecretAlg,
-			TSIGSecretName:  cfg.RFC2136TSIGSecretName,
-			TSIGFurge:       cfg.RFC2136TSIGFurge,
-		})
+		furge, err := strconv.Atoi(os.Getenv("RFC2135_TSIG_FURGE"))
+		if err == nil {
+			p, err = provider.NewRFC2136Provider(provider.RFC2136Config{
+				DNSServerHost:   os.Getenv("RFC2135_DNS_SERVER_HOST"),
+				MainWorkingZone: os.Getenv("RFC2135_MAIN_ZONE"),
+				TSIGSecret:      os.Getenv("RFC2135_TSIG_SECRET"),
+				TSIGSecretAlg:   os.Getenv("RFC2135_TSIG_SECRET_ALG"),
+				TSIGSecretName:  os.Getenv("RFC2135_TSIG_SECRET_NAME"),
+				TSIGFurge:       uint16(furge),
+			})
+		}
 	case "infoblox":
 		p, err = provider.NewInfobloxProvider(
 			provider.InfobloxConfig{

@@ -89,12 +89,6 @@ type Config struct {
 	ExoscaleEndpoint         string
 	ExoscaleAPIKey           string
 	ExoscaleAPISecret        string
-	RFC2136DNSServerHost     string
-	RFC2136MainZone          string
-	RFC2136TSIGSecret        string
-	RFC2136TSIGSecretAlg     string
-	RFC2136TSIGSecretName    string
-	RFC2136TSIGFurge         uint16
 }
 
 var defaultConfig = &Config{
@@ -235,14 +229,6 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("exoscale-endpoint", "Provide the endpoint for the Exoscale provider").Default(defaultConfig.ExoscaleEndpoint).StringVar(&cfg.ExoscaleEndpoint)
 	app.Flag("exoscale-apikey", "Provide your API Key for the Exoscale provider").Default(defaultConfig.ExoscaleAPIKey).StringVar(&cfg.ExoscaleAPIKey)
 	app.Flag("exoscale-apisecret", "Provide your API Secret for the Exoscale provider").Default(defaultConfig.ExoscaleAPISecret).StringVar(&cfg.ExoscaleAPISecret)
-
-	// RFC2136 provider flags
-	app.Flag("rfc2135-dns-server-host", "").StringVar(&cfg.RFC2136DNSServerHost)
-	app.Flag("rfc2135-main-zone", "").StringVar(&cfg.RFC2136MainZone)
-	app.Flag("rfc2135-tsig-secret", "").StringVar(&cfg.RFC2136TSIGSecret)
-	app.Flag("rfc2135-tsig-secret-alg", "").StringVar(&cfg.RFC2136TSIGSecretAlg)
-	app.Flag("rfc2135-tsig-secret-name", "").StringVar(&cfg.RFC2136TSIGSecretName)
-	app.Flag("rfc2135-tsig-furge", "").Uint16Var(&cfg.RFC2136TSIGFurge)
 
 	// Flags related to policies
 	app.Flag("policy", "Modify how DNS records are sychronized between sources and providers (default: sync, options: sync, upsert-only)").Default(defaultConfig.Policy).EnumVar(&cfg.Policy, "sync", "upsert-only")
