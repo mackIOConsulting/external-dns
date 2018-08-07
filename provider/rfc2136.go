@@ -287,7 +287,7 @@ func (r rfc2136Provider) SendMessage(msg *dns.Msg) error {
 
 	if !r.insecure {
 		c.TsigSecret = map[string]string{r.tsigKeyName: r.tsigSecret}
-		msg.SetTsig(r.tsigKeyName, dns.HmacMD5, 300, time.Now().Unix())
+		msg.SetTsig(r.tsigKeyName, r.tsigSecretAlg, 300, time.Now().Unix())
 	}
 
 	resp, _, err := c.Exchange(msg, r.nameserver)
