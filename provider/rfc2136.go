@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/miekg/dns"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kubernetes-incubator/external-dns/endpoint"
@@ -31,30 +32,48 @@ import (
 
 // rfc2136 provider type
 type rfc2136Provider struct {
-	nameserver  string
-	zoneName    string
-	tsigKeyName string
-	tsigSecret  string
-	insecure    bool
+	nameserver    string
+	zoneName      string
+	tsigKeyName   string
+	tsigSecret    string
+	tsigSecretAlg string
+	insecure      bool
+	axfr          bool
 
 	// only consider hosted zones managing domains ending in this suffix
 	domainFilter DomainFilter
 	dryRun       bool
 }
 
+var (
+	tsigAlgs = map[string]string{
+		"hmac-md5":    dns.HmacMD5,
+		"hmac-sha1":   dns.HmacSHA1,
+		"hmac-sha256": dns.HmacSHA256,
+		"hmac-sha512": dns.HmacSHA512,
+	}
+)
+
 // NewRfc2136Provider is a factory function for OpenStack rfc2136 providers
-func NewRfc2136Provider(host string, port int, zoneName string, insecure bool, keyName string, secret string, domainFilter DomainFilter, dryRun bool) (Provider, error) {
+func NewRfc2136Provider(host string, port int, zoneName string, insecure bool, keyName string, secret string, secretAlg string, axfr bool, domainFilter DomainFilter, dryRun bool) (Provider, error) {
+	secretAlgChecked, ok := tsigAlgs[secretAlg]
+	if !ok {
+		return nil, errors.Errorf("%s is not supported TSIG algorithm", secretAlg)
+	}
+
 	r := &rfc2136Provider{
 		nameserver:   net.JoinHostPort(host, strconv.Itoa(port)),
 		zoneName:     dns.Fqdn(zoneName),
 		insecure:     insecure,
 		domainFilter: domainFilter,
 		dryRun:       dryRun,
+		axfr:         axfr,
 	}
 
 	if !insecure {
 		r.tsigKeyName = dns.Fqdn(keyName)
 		r.tsigSecret = secret
+		r.tsigSecretAlg = secretAlgChecked
 	}
 
 	log.Infof("Configured RFC2136 with zone '%s' and nameserver '%s'", r.zoneName, r.nameserver)
@@ -120,6 +139,11 @@ OuterLoop:
 }
 
 func (r rfc2136Provider) List() ([]dns.RR, error) {
+	if !r.axfr {
+		log.Info("axfr is disabled")
+		return make([]dns.RR, 0), nil
+	}
+
 	log.Debugf("Fetching records for '%s'", r.zoneName)
 
 	t := new(dns.Transfer)
@@ -130,7 +154,7 @@ func (r rfc2136Provider) List() ([]dns.RR, error) {
 	m := new(dns.Msg)
 	m.SetAxfr(r.zoneName)
 	if !r.insecure {
-		m.SetTsig(r.tsigKeyName, dns.HmacMD5, 300, time.Now().Unix())
+		m.SetTsig(r.tsigKeyName, r.tsigSecretAlg, 300, time.Now().Unix())
 	}
 
 	env, err := t.In(m, r.nameserver)

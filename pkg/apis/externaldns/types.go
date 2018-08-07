@@ -95,6 +95,8 @@ type Config struct {
 	RFC2136Insecure          bool
 	RFC2136TSIGKeyName       string
 	RFC2136TSIGSecret        string
+	RFC2136TSIGSecretAlg     string
+	RFC2136TAXFR             bool
 }
 
 var defaultConfig = &Config{
@@ -152,6 +154,8 @@ var defaultConfig = &Config{
 	RFC2136Insecure:          false,
 	RFC2136TSIGKeyName:       "",
 	RFC2136TSIGSecret:        "",
+	RFC2136TSIGSecretAlg:     "",
+	RFC2136TAXFR:             true,
 }
 
 // NewConfig returns new Config object
@@ -249,6 +253,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("rfc2136-insecure", "When using the RFC2136 provider, specify whether to attach TSIG or not (default: false, requires --rfc2136-tsig-keyname and rfc2136-tsig-secret)").Default(strconv.FormatBool(defaultConfig.RFC2136Insecure)).BoolVar(&cfg.RFC2136Insecure)
 	app.Flag("rfc2136-tsig-keyname", "When using the RFC2136 provider, specify the TSIG key to attached to DNS messages (required when --rfc2136-insecure=false)").Default(defaultConfig.RFC2136TSIGKeyName).StringVar(&cfg.RFC2136TSIGKeyName)
 	app.Flag("rfc2136-tsig-secret", "When using the RFC2136 provider, specify the TSIG (base64) value to attached to DNS messages (required when --rfc2136-insecure=false)").Default(defaultConfig.RFC2136TSIGSecret).StringVar(&cfg.RFC2136TSIGSecret)
+	app.Flag("rfc2136-tsig-secret-alg", "When using the RFC2136 provider, specify the TSIG (base64) value to attached to DNS messages (required when --rfc2136-insecure=false)").Default(defaultConfig.RFC2136TSIGSecretAlg).StringVar(&cfg.RFC2136TSIGSecretAlg)
+	app.Flag("rfc2136-tsig-axfr", "When using the RFC2136 provider, specify the TSIG (base64) value to attached to DNS messages (required when --rfc2136-insecure=false)").BoolVar(&cfg.RFC2136TAXFR)
 
 	// Flags related to policies
 	app.Flag("policy", "Modify how DNS records are sychronized between sources and providers (default: sync, options: sync, upsert-only)").Default(defaultConfig.Policy).EnumVar(&cfg.Policy, "sync", "upsert-only")
